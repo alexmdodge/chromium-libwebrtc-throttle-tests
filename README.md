@@ -1,4 +1,4 @@
-## Chromium Throttle Test Tools
+## Chromium WebRTC Network Test Tooling
 
 Bare-bones CDP based Chromium test tooling for throttled WebRTC testing. Includes automation for:
 
