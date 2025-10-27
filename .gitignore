@@ -2,3 +2,4 @@ node_modules
 *.y4m
 results
 test-user-data
+.DS_Store
