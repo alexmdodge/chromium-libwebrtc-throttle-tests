@@ -7,16 +7,16 @@ const { throttle, NETWORK_PROFILE, wait } = require('../scripts/throttling');
  */
 async function run(page, cdp) {
     // wait for target bitrate to ramp
-    await wait(20);
+    await wait(30);
 
-    // throttle uplink to 300kbps
-    await throttle(page, cdp, NETWORK_PROFILE.UPLOAD_300_KBPS);
+    // throttle uplink
+    await throttle(page, cdp, NETWORK_PROFILE.UPLOAD_50_KBPS);
     await wait(20);
 
     // remove throttling
     await throttle(page, cdp);
 
-    await wait(30);
+    await wait(60);
 }
 
 module.exports = {

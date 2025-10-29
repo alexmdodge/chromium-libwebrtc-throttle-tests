@@ -42,7 +42,7 @@ async function test(testName, chromePath, testPageUrl) {
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-video-capture=${TEST_MEDIA_FILE}`,
       '--enable-logging',
-      '--vmodule=*/webrtc/*=1',
+      '--vmodule=*/webrtc/*=4',
       '--force-fieldtrials=WebRTC-RtcEventLogNewFormat/Disabled/',
       `--webrtc-event-logging=${testResultsDir}`
     ],
@@ -61,7 +61,7 @@ async function test(testName, chromePath, testPageUrl) {
   const { internals } = await getWebrtcInternals(browser, testResultsDir);
   
   const { page, config, pageCDP } = await getTestPage(browser, testPageUrl);
-  await joinAndPublishTestPage(page, config);
+  await joinAndPublishTestPage(browser, page, config);
   await testFn(page, pageCDP);
   
   await internals.bringToFront();

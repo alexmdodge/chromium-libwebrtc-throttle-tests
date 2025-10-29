@@ -8,26 +8,43 @@ const { wait, throttle } = require('./throttling');
  * test page element ids for quick selection and triggering of test logic.
  */
 const TEST_APP_HANDLERS = {
+    'default': {
+        token: undefined,
+        join: undefined,
+        publish: undefined,
+    },
     'p2p': {
         // For pages which require authentication, add a query parameter which accepts a token    
-        'token': undefined,
+        token: undefined,
 
         // Element id for 'joining' which may setup media or request camera or mic permissions
-        'join': '#startButton',
+        join: '#startButton',
 
         // Establish the peer connection and start media upload
-        'publish': '#callButton',
+        publish: '#callButton',
     },
     'sfu': {
         // For pages which require authentication, add a query parameter which accepts a token
-        'token': undefined, // Replace with service token
+        token: undefined, // Replace with service token
 
         // Element id for 'joining' which may setup media or request camera or mic permissions
-        'join': '#join-button',
+        join: '#join-button',
 
         // Establish the peer connection and start media upload
-        'publish': undefined,
+        publish: undefined,
     },
+    'janus': {
+        token: undefined,
+        join: '#start',
+        /**
+         * @param {puppeteer.Page} page
+         */
+        async custom(page) {
+            await wait(3);
+            await page.type('#username', 'testuser2');
+        },
+        publish: '#register',
+    }
 
     // Add your page here. Note that each variable is optional. If none are provided the
     // page will still run and execute if it's automatically setup to do so.
@@ -43,10 +60,14 @@ const TEST_APP_HANDLERS = {
  * @param {string} url Test page URL provided from command line
  */
 async function getTestPage(browser, url) {
-    let config = TEST_APP_HANDLERS['sfu'];
+    let config = {...TEST_APP_HANDLERS['default'], url };
 
     if (url.includes('peerconnection')) {
-        config = TEST_APP_HANDLERS['p2p'];
+        config = {...TEST_APP_HANDLERS['p2p'], url };
+    }
+
+    if (url.includes('janus')) {
+        config = {...TEST_APP_HANDLERS['janus'], url };
     }
 
     // Add your page URL handling / setup here
@@ -69,15 +90,16 @@ async function getTestPage(browser, url) {
 
     // Setup throttling for CDP
     const pageCDP = await page.createCDPSession();
-    await throttle(pageCDP);
+    await throttle(page, pageCDP);
 
     return { page, config, pageCDP };
 }
 
 /**
+ * @param {puppeteer.Browser} browser From which to join and publish
  * @param {puppeteer.Page} page From which to join and publish
  */
-async function joinAndPublishTestPage(page, config = {}) {
+async function joinAndPublishTestPage(browser, page, config = {}) {
     // Join the session
   if (config.join) {
     await page.click(config.join);
@@ -85,7 +107,11 @@ async function joinAndPublishTestPage(page, config = {}) {
   }
 
   await wait(3);
+  if (config.custom) {
+    await config.custom(browser, page, config);
+  }
 
+  await wait(3);
   // Start publishing if needed
   if (config.publish) {
     await page.click(config.publish);

@@ -29,6 +29,21 @@ node test.js \
 
 Contents of test runs are timestamped and located in `./results`.
 
+## Special Test Cases
+
+### Janus Demo
+
+Open the Demo and join as a participant first:
+https://janus.conf.meetecho.com/demos/videoroom.html
+
+Then run the test:
+```sh
+node test.js \
+    "uplink-300kbps" \
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+    "https://janus.conf.meetecho.com/demos/videoroom.html"
+```
+
 ## Debugging
 
 * Event logs can be visualized in: https://fippo.github.io/dump-webrtc-event-log/

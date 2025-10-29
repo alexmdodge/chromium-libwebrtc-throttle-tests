@@ -8,6 +8,7 @@ const NETWORK_PROFILE = {
 		downloadThroughput: UNLIMITED_BYTES,
 		uploadThroughput: UNLIMITED_BYTES,
 	},
+	UPLOAD_50_KBPS: { uploadThroughput: 6250 },
 	UPLOAD_300_KBPS: { uploadThroughput: 37500 },
 	DOWNLOAD_300_KBPS: { downloadThroughput: 37500 },
 	PACKET_LOSS_20: { packetLoss: 20, latency: 120 },
@@ -20,14 +21,17 @@ const NETWORK_PROFILE = {
  *
  * @param {puppeteer.CDPSession} session CDP session to triggering throttling from
  */
-async function throttle(session, overrides = {}) {
+async function throttle(page, session, overrides = {}) {
   const profile = {
     ...NETWORK_PROFILE.UNLIMITED,
     ...overrides,
   }
 
+  await page.evaluate((params) => {
+    const [profile] = params
+    console.log(`Applying throttling profile: ${profile}`);
+  }, [JSON.stringify(profile, null, 2)]);
   await session.send('Network.emulateNetworkConditions', profile);
-  console.log(`Throttling profile: ${JSON.stringify(profile, null, 2)}`);
 }
 
 async function wait(seconds) {
